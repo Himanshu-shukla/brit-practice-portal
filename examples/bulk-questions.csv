@@ -1,0 +1,2 @@
+externalId,type,subject,topics,tags,difficulty,questionText,optionA,optionB,optionC,optionD,correctOptionKeys,explanation,status,mediaIds
+BRIT-EXCEL-CSV-003,single_choice,excel,pivot_tables,excel/pivot_tables,intermediate,Which aggregation adds all numbers?,COUNT,SUM,AVERAGE,MAX,B,SUM adds values.,published,

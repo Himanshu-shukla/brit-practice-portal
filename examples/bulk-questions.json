@@ -1,0 +1,40 @@
+[
+  {
+    "externalId": "BRIT-EXCEL-DEMO-002",
+    "type": "single_choice",
+    "subject": "excel",
+    "topics": ["pivot_tables"],
+    "tags": ["excel/pivot_tables", "aggregation"],
+    "difficulty": "intermediate",
+    "questionText": "Which function calculates total sales in a PivotTable?",
+    "mediaIds": [],
+    "options": [
+      {"key":"A", "text":"AVERAGE"},
+      {"key":"B", "text":"SUM"},
+      {"key":"C", "text":"COUNT"},
+      {"key":"D", "text":"MAX"}
+    ],
+    "correctOptionKeys": ["B"],
+    "explanation": "SUM aggregates numeric values to a total.",
+    "status": "published"
+  },
+  {
+    "externalId": "BRIT-SQL-DEMO-002",
+    "type": "multiple_choice",
+    "subject": "sql",
+    "topics": ["window_functions"],
+    "tags": ["sql/window_functions", "interview"],
+    "difficulty": "intermediate",
+    "questionText": "Which of these are SQL window functions?",
+    "mediaIds": [],
+    "options": [
+      {"key":"A", "text":"ROW_NUMBER()"},
+      {"key":"B", "text":"RANK()"},
+      {"key":"C", "text":"WHERE"},
+      {"key":"D", "text":"DENSE_RANK()"}
+    ],
+    "correctOptionKeys": ["A", "B", "D"],
+    "explanation": "ROW_NUMBER, RANK and DENSE_RANK are window functions; WHERE is a filtering clause.",
+    "status": "published"
+  }
+]

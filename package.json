@@ -1,0 +1,39 @@
+{
+  "name": "brit-practice-portal",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start -p 3000",
+    "typecheck": "tsc --noEmit",
+    "seed": "tsx scripts/seed.ts",
+    "seed:scenarios": "tsx scripts/seed_scenarios.ts",
+    "test": "tsx --test tests/*.test.ts",
+    "drive:authorize": "tsx scripts/drive-authorize.ts"
+  },
+  "dependencies": {
+    "next": "^15.5.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "mongoose": "^8.18.0",
+    "jose": "^6.0.0",
+    "bcryptjs": "^3.0.2",
+    "googleapis": "^150.0.0",
+    "luxon": "^3.7.0",
+    "zod": "^3.25.0",
+    "exceljs": "^4.4.0",
+    "dotenv": "^16.6.0",
+    "csv-parse": "^6.1.0",
+    "lucide-react": "^0.468.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "@types/luxon": "^3.6.0",
+    "typescript": "^5.9.0",
+    "tsx": "^4.19.0"
+  },
+  "engines": { "node": ">=20.9" }
+}
