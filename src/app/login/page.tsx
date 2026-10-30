@@ -6,13 +6,14 @@ import { Mail, User, Lock, Eye, EyeOff, ArrowRight, Sparkles, CheckCircle2 } fro
 import { api } from '@/lib/api-fetch';
 
 export default function Login() {
-  const [mode, setMode] = useState<'username' | 'email'>('username');
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const router = useRouter();
+
+  const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier.trim());
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -109,58 +110,25 @@ export default function Login() {
           <h2>Sign in to Practice</h2>
           <p className="tagline">Use the credentials provided by BRIT Institute.</p>
 
-          {/* TAB SELECTOR: USERNAME VS EMAIL */}
-          <div className="loginTabs" role="tablist" aria-label="Sign in method">
-            <button
-              type="button"
-              role="tab"
-              aria-selected={mode === 'username'}
-              className={`loginTab ${mode === 'username' ? 'active' : ''}`}
-              onClick={() => setMode('username')}
-            >
-              <User size={15} />
-              <span>Username</span>
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={mode === 'email'}
-              className={`loginTab ${mode === 'email' ? 'active' : ''}`}
-              onClick={() => setMode('email')}
-            >
-              <Mail size={15} />
-              <span>Email Address</span>
-            </button>
-          </div>
-
           <form onSubmit={submit} className="stack">
             <div className="field">
-              <label htmlFor="login-identifier">
-                {mode === 'username' ? 'Username' : 'Email Address'}
-              </label>
+              <label htmlFor="login-identifier">Email or Username</label>
               <div className="inputWrap">
-                <span className="inputIcon">
-                  {mode === 'username' ? <User size={16} /> : <Mail size={16} />}
+                <span className="inputIcon" title={isEmail ? 'Email format detected' : 'Username format detected'}>
+                  {isEmail ? <Mail size={16} /> : <User size={16} />}
                 </span>
                 <input
                   id="login-identifier"
                   className="input inputWithIcon"
                   type="text"
                   value={identifier}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    setIdentifier(val);
-                    if (val.includes('@') && mode !== 'email') {
-                      setMode('email');
-                    }
-                  }}
+                  onChange={(e) => setIdentifier(e.target.value)}
                   required
-                  placeholder={
-                    mode === 'username'
-                      ? 'Enter your username (e.g. test, dandikridi)'
-                      : 'Enter your email (e.g. you@example.com)'
-                  }
-                  autoComplete={mode === 'username' ? 'username' : 'email'}
+                  placeholder="Enter your email or username"
+                  autoComplete="username"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck="false"
                 />
               </div>
             </div>

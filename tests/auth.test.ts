@@ -100,3 +100,22 @@ test('mentor accounts with teacher or superadmin role map to privileged studio r
   assert.equal(normalizeRole(mentorUser.role), 'mentor');
 });
 
+test('email structure detection correctly classifies input as email or username', () => {
+  const isEmailPattern = (val: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim());
+
+  // Valid emails
+  assert.equal(isEmailPattern('learner@example.com'), true);
+  assert.equal(isEmailPattern('dandikridi@gmail.com'), true);
+  assert.equal(isEmailPattern('mentor@britinstitute.co.uk'), true);
+  assert.equal(isEmailPattern('  test@domain.org  '), true);
+
+  // Usernames (treated as username because they do not have full email structure)
+  assert.equal(isEmailPattern('test'), false);
+  assert.equal(isEmailPattern('alok'), false);
+  assert.equal(isEmailPattern('teacher'), false);
+  assert.equal(isEmailPattern('superadmin'), false);
+  assert.equal(isEmailPattern('dandikridi'), false);
+  assert.equal(isEmailPattern('himnashu_t4'), false);
+  assert.equal(isEmailPattern('user@domain'), false);
+});
+
