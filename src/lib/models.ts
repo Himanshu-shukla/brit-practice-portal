@@ -22,9 +22,21 @@ const test = new Schema({title:{type:String,required:true},testDate:{type:String
  createdBy:{type:Schema.Types.ObjectId,ref:'User',required:true}},{timestamps:true});
 test.index({testDate:1,status:1,batchId:1});
 
-const user = new Schema({name:{type:String,required:true},email:{type:String,required:true,unique:true,lowercase:true,trim:true},
- passwordHash:{type:String,required:true},role:{type:String,enum:['learner','mentor','admin'],default:'learner'},
- batchId:{type:String,default:'batch-1'},failedLogins:{type:Number,default:0},lockedUntil:Date},{timestamps:true});
+const user = new Schema({
+  name: { type: String, required: true },
+  email: { type: String, lowercase: true, trim: true },
+  username: { type: String, trim: true },
+  password: { type: String },
+  passwordHash: { type: String },
+  role: { type: String, enum: ['learner', 'student', 'mentor', 'teacher', 'admin', 'superadmin'], default: 'learner' },
+  batchId: { type: String, default: 'batch-1' },
+  enrolledCourse: { type: Schema.Types.ObjectId },
+  isActive: { type: Boolean, default: true },
+  failedLogins: { type: Number, default: 0 },
+  lockedUntil: Date
+}, { timestamps: true, strict: false });
+user.index({ email: 1 }, { unique: true, sparse: true });
+user.index({ username: 1 }, { unique: true, sparse: true });
 
 const answer = new Schema({questionId:{type:Schema.Types.ObjectId,required:true},
  selectedOptionKeys:{type:[String],default:[]},isCorrect:Boolean},{_id:false});

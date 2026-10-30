@@ -7,14 +7,70 @@ import { createHash, timingSafeEqual } from 'crypto';
 
 const COOKIE='brit_session';
 function key() {const s=process.env.JWT_SECRET||'';if(s.length<32)throw new Error('JWT_SECRET must be 32+ characters');return new TextEncoder().encode(s);}
-export type Actor={id:string,name:string,email:string,role:'learner'|'mentor'|'admin',batchId:string};
-export async function newToken(id:string){return new SignJWT({}).setProtectedHeader({alg:'HS256'}).setSubject(id).setIssuedAt().setExpirationTime('7d').sign(key());}
-export async function actor():Promise<Actor|null>{
- try {const jwt=(await cookies()).get(COOKIE)?.value;if(!jwt)return null;
-  const {payload}=await jwtVerify(jwt,key());if(!payload.sub)return null;
-  await db();const u=await User.findById(payload.sub).lean() as any;
-  if(!u)return null;return {id:String(u._id),name:u.name,email:u.email,role:u.role,batchId:u.batchId};
- }catch{return null;}
+export type Actor = {
+  id: string;
+  name: string;
+  email: string;
+  username?: string;
+  role: 'learner' | 'mentor' | 'admin';
+  batchId: string;
+};
+
+export function normalizeRole(role?: string): 'learner' | 'mentor' | 'admin' {
+  const r = (role || '').toLowerCase().trim();
+  if (r === 'teacher' || r === 'mentor') return 'mentor';
+  if (r === 'superadmin' || r === 'admin') return 'admin';
+  return 'learner';
+}
+
+export async function newToken(id: string) {
+  return new SignJWT({})
+    .setProtectedHeader({ alg: 'HS256' })
+    .setSubject(id)
+    .setIssuedAt()
+    .setExpirationTime('7d')
+    .sign(key());
+}
+
+export async function actor(): Promise<Actor | null> {
+  try {
+    const jwt = (await cookies()).get(COOKIE)?.value;
+    if (!jwt) return null;
+    const { payload } = await jwtVerify(jwt, key());
+    if (!payload.sub) return null;
+    await db();
+    const u = await User.findById(payload.sub).lean() as any;
+    if (!u || u.isActive === false) return null;
+
+    const role = normalizeRole(u.role);
+    let batchId = u.batchId;
+    if (role === 'mentor' || role === 'admin') {
+      batchId = u.batchId || 'all';
+    } else if (!batchId) {
+      try {
+        const mongoose = (await import('mongoose')).default;
+        const batch = await mongoose.connection.collection('batches').findOne({
+          students: u._id,
+          isActive: true
+        });
+        if (batch) {
+          batchId = batch.name || String(batch._id);
+        }
+      } catch {}
+      if (!batchId) batchId = 'batch-1';
+    }
+
+    return {
+      id: String(u._id),
+      name: u.name || u.username || (role === 'mentor' ? 'Mentor' : 'Learner'),
+      email: u.email || (u.username ? `${u.username}@britinstitute.co.uk` : ''),
+      username: u.username,
+      role,
+      batchId
+    };
+  } catch {
+    return null;
+  }
 }
 export function cookieName(){return COOKIE;}
 export function checkOrigin(req:NextRequest){

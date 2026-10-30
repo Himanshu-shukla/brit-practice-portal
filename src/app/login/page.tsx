@@ -21,10 +21,15 @@ export default function Login() {
     try {
       const res = await api<{ name: string; role: string }>('/api/v1/auth/login', {
         method: 'POST',
-        body: JSON.stringify({ email: email.trim(), password }),
+        body: JSON.stringify({
+          identifier: email.trim(),
+          email: email.trim(),
+          username: email.trim(),
+          password
+        }),
       });
 
-      if (res.role === 'mentor') {
+      if (res.role === 'mentor' || res.role === 'admin') {
         router.push('/mentor');
       } else {
         router.push('/dashboard');
@@ -105,7 +110,7 @@ export default function Login() {
 
           <form onSubmit={submit} className="stack">
             <div className="field">
-              <label htmlFor="login-email">Email Address</label>
+              <label htmlFor="login-email">Email or Username</label>
               <div className="inputWrap">
                 <span className="inputIcon">
                   <Mail size={16} />
@@ -113,12 +118,12 @@ export default function Login() {
                 <input
                   id="login-email"
                   className="input inputWithIcon"
-                  type="email"
+                  type="text"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  placeholder="you@example.com"
-                  autoComplete="email"
+                  placeholder="Username or email (e.g. test or you@example.com)"
+                  autoComplete="username"
                 />
               </div>
             </div>

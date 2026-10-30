@@ -17,10 +17,15 @@ export default function Portal({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     api<{ user: User }>('/api/v1/auth/me')
-      .then((r) => setUser(r.user))
+      .then((r) => {
+        setUser(r.user);
+        if (pathname.startsWith('/mentor') && r.user.role === 'learner') {
+          router.replace('/dashboard');
+        }
+      })
       .catch(() => router.replace('/login'))
       .finally(() => setLoaded(true));
-  }, [router]);
+  }, [router, pathname]);
 
   // Dark mode effect
   useEffect(() => {
@@ -86,12 +91,19 @@ export default function Portal({ children }: { children: React.ReactNode }) {
             </Link>
 
             <span className="batchBadge">
-              {user.batchId ? (user.batchId.startsWith('batch-') ? `Batch ${user.batchId.replace('batch-', '')}` : user.batchId) : 'Batch 1'}
+              {user.role === 'mentor' || user.role === 'admin'
+                ? (isMentor ? 'Mentor Studio' : 'Instructor')
+                : (user.batchId ? (user.batchId.startsWith('batch-') ? `Batch ${user.batchId.replace('batch-', '')}` : user.batchId) : 'Batch 1')}
             </span>
           </div>
 
           {/* RIGHT ACTIONS: SEARCH, DARK MODE, USER AVATAR */}
           <div className="portalHeaderActions">
+            {user.role !== 'learner' && !isMentor && (
+              <Link href="/mentor" className="btn btnSecondary btnSmall" style={{ padding: '4px 10px', fontSize: 12, gap: 5 }}>
+                <ShieldCheck size={14} /> <span>Mentor Studio</span>
+              </Link>
+            )}
             <button
               className="headerIconBtn"
               onClick={() => window.dispatchEvent(new CustomEvent('toggle-quick-search'))}

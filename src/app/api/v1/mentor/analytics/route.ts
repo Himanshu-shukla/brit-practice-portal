@@ -4,7 +4,7 @@ import {User,DailyTest,TestAttempt,QuestionProgress} from '@/lib/models';
 export const GET=wrap(async(req)=>{
  const u=await requireRole(req,['mentor','admin']);if(!u)return fail('Forbidden',403);await db();
  const [learners,tests,attempts,pending,topicErrors]=await Promise.all([
-  User.countDocuments({role:'learner'}),DailyTest.countDocuments({status:'published'}),
+  User.countDocuments({role:{$in:['learner','student']}}),DailyTest.countDocuments({status:'published'}),
   TestAttempt.countDocuments({status:'submitted'}),QuestionProgress.countDocuments({needsRevision:true}),
   QuestionProgress.aggregate([{$match:{needsRevision:true}},{$lookup:{from:DailyTest.collection.name,localField:'sourceTestId',foreignField:'_id',as:'test'}},
    {$unwind:'$test'},{$unwind:'$test.items'},{$match:{$expr:{$eq:['$test.items.questionId','$questionId']}}},
