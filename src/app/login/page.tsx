@@ -2,11 +2,12 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Mail, Lock, Eye, EyeOff, ArrowRight, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Mail, User, Lock, Eye, EyeOff, ArrowRight, Sparkles, CheckCircle2 } from 'lucide-react';
 import { api } from '@/lib/api-fetch';
 
 export default function Login() {
-  const [email, setEmail] = useState('');
+  const [mode, setMode] = useState<'username' | 'email'>('username');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
@@ -22,9 +23,9 @@ export default function Login() {
       const res = await api<{ name: string; role: string }>('/api/v1/auth/login', {
         method: 'POST',
         body: JSON.stringify({
-          identifier: email.trim(),
-          email: email.trim(),
-          username: email.trim(),
+          identifier: identifier.trim(),
+          email: identifier.trim(),
+          username: identifier.trim(),
           password
         }),
       });
@@ -108,22 +109,58 @@ export default function Login() {
           <h2>Sign in to Practice</h2>
           <p className="tagline">Use the credentials provided by BRIT Institute.</p>
 
+          {/* TAB SELECTOR: USERNAME VS EMAIL */}
+          <div className="loginTabs" role="tablist" aria-label="Sign in method">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={mode === 'username'}
+              className={`loginTab ${mode === 'username' ? 'active' : ''}`}
+              onClick={() => setMode('username')}
+            >
+              <User size={15} />
+              <span>Username</span>
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={mode === 'email'}
+              className={`loginTab ${mode === 'email' ? 'active' : ''}`}
+              onClick={() => setMode('email')}
+            >
+              <Mail size={15} />
+              <span>Email Address</span>
+            </button>
+          </div>
+
           <form onSubmit={submit} className="stack">
             <div className="field">
-              <label htmlFor="login-email">Email or Username</label>
+              <label htmlFor="login-identifier">
+                {mode === 'username' ? 'Username' : 'Email Address'}
+              </label>
               <div className="inputWrap">
                 <span className="inputIcon">
-                  <Mail size={16} />
+                  {mode === 'username' ? <User size={16} /> : <Mail size={16} />}
                 </span>
                 <input
-                  id="login-email"
+                  id="login-identifier"
                   className="input inputWithIcon"
                   type="text"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={identifier}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setIdentifier(val);
+                    if (val.includes('@') && mode !== 'email') {
+                      setMode('email');
+                    }
+                  }}
                   required
-                  placeholder="Username or email (e.g. test or you@example.com)"
-                  autoComplete="username"
+                  placeholder={
+                    mode === 'username'
+                      ? 'Enter your username (e.g. test, dandikridi)'
+                      : 'Enter your email (e.g. you@example.com)'
+                  }
+                  autoComplete={mode === 'username' ? 'username' : 'email'}
                 />
               </div>
             </div>
@@ -165,7 +202,7 @@ export default function Login() {
           </form>
 
           <p className="note">
-            Mentors and learners use the same login. Access is determined by your account role.
+            Sign in using either your assigned username or email address. Mentors and learners use the same portal login.
           </p>
         </div>
       </main>
