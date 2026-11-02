@@ -76,15 +76,21 @@ export function cookieName(){return COOKIE;}
 export function checkOrigin(req:NextRequest){
  const origin=req.headers.get('origin');
  if(!origin)return true; // Non-browser machine clients may omit it; bearer key used for integrations.
- const configured=process.env.APP_ORIGIN;
- if(!configured)return false;
- try{
-   const o=new URL(origin);
-   const c=new URL(configured);
-   if(o.origin===c.origin)return true;
-   if(process.env.NODE_ENV!=='production'&&(o.hostname==='localhost'||o.hostname==='127.0.0.1')&&(c.hostname==='localhost'||c.hostname==='127.0.0.1'))return true;
-   return false;
- }catch{return false;}
+ let o:URL;
+ try{o=new URL(origin);}catch{return false;}
+ // Same-origin: browser-set Origin host matches the host the request was addressed to (works behind a reverse proxy).
+ const host=(req.headers.get('x-forwarded-host')||req.headers.get('host')||'').split(',')[0].trim().toLowerCase();
+ if(host&&o.host.toLowerCase()===host)return true;
+ // APP_ORIGIN may list several allowed origins, comma-separated.
+ const isLocal=(h:string)=>h==='localhost'||h==='127.0.0.1';
+ for(const entry of (process.env.APP_ORIGIN||'').split(',').map(s=>s.trim()).filter(Boolean)){
+   try{
+     const c=new URL(entry);
+     if(o.origin===c.origin)return true;
+     if(process.env.NODE_ENV!=='production'&&isLocal(o.hostname)&&isLocal(c.hostname))return true;
+   }catch{}
+ }
+ return false;
 }
 export function validIntegrationKey(req:NextRequest){
  const expected=process.env.INTEGRATION_API_KEY;
